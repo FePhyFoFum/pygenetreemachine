@@ -27,13 +27,18 @@ if __name__ == "__main__":
     infile = open(sys.argv[1],"r")
     intree1 = newick3.parse(infile.readline())
     infile.close()
+    ingraph,node_leaves_in = simple_combine.process_tree_to_graph(intree1)
 
     graph = nx.read_dot(sys.argv[2])
     for i in graph.edges():
-        graph[i[0]][i[1]]['weight'] = int(graph[i[0]][i[1]]['weight'])
+        try:
+            graph[i[0]][i[1]]['weight'] = int(graph[i[0]][i[1]]['weight'])
+        except:
+            continue
     node_leaves = get_node_leaves(graph)
 
-    graph = simple_combine.combine_tree(graph,node_leaves,intree1)
+#    graph = simple_combine.combine_tree(graph,node_leaves,intree1)
+    graph = nx.compose(graph,ingraph)
     pos=nx.graphviz_layout(graph)
     nx.draw(graph,pos)
     plt.show()

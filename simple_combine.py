@@ -133,7 +133,8 @@ if __name__ == "__main__":
     infile.close()
     graph2,node_leaves2 = process_tree_to_graph(intree2)
 
-    graph = combine_tree(graph1,node_leaves1,intree2)
+#    graph = combine_tree(graph1,node_leaves1,intree2)
+    graph = nx.compose(graph1,graph2)
     pos=nx.graphviz_layout(graph)
     nx.draw(graph,pos)
     plt.show()
