@@ -143,6 +143,28 @@ def to_string(node, length_fmt=":%s"):
     s = "%s%s" % (node_str, length_str)
     return s
 
+def to_string(node, comment, length_fmt=":%s"):
+    if not node.istip:
+        node_str = "(%s)%s" % \
+                   (",".join([ to_string(child, length_fmt) \
+                               for child in node.children ]),
+                    node.label or ""
+                    )
+    else:
+        if node.comment != None:
+            node_str = "%s" % node.label+"["+node.comment+"]"
+        else:
+            node_str = "%s" % node.label
+
+    if node.length is not None:
+        length_str = length_fmt % node.length
+    else:
+        length_str = ""
+
+    s = "%s%s" % (node_str, length_str)
+    return s
+
+
 tostring = to_string
         
 def parse_from_file(filename):

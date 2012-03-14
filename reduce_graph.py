@@ -84,5 +84,5 @@ if __name__ == "__main__":
     nx.write_dot(graph,sys.argv[2])
     tree = build_tree_from_graph(graph)
     outfile = open(sys.argv[3],"w")
-    outfile.write(newick3.tostring(tree)+";\n")
+    outfile.write(newick3.tostring(tree,None)+";\n")
     outfile.close()
