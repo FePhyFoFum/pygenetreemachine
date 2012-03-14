@@ -63,8 +63,8 @@ def build_tree_from_graph(graph):
     return root
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print "python reduce_graph.py in.dot out.dot"
+    if len(sys.argv) != 4:
+        print "python reduce_graph.py in.dot out.dot out.tre"
         sys.exit(0)
 
     graph = nx.read_dot(sys.argv[1])
@@ -80,4 +80,6 @@ if __name__ == "__main__":
 #    plt.show()
     nx.write_dot(graph,sys.argv[2])
     tree = build_tree_from_graph(graph)
-    print newick3.tostring(tree)+";"
+    outfile = open(sys.argv[3],"w")
+    outfile.write(newick3.tostring(tree)+";\n")
+    outfile.close()
