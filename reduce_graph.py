@@ -35,6 +35,7 @@ def build_tree_from_graph(graph):
     root.label = "0"
     root.istip = False
     root.isroot = True
+    root.length = 1
     nodes = {}
     nodes["0"] = root
     for i in graph.nodes():
@@ -43,6 +44,7 @@ def build_tree_from_graph(graph):
         if i not in nodes:
             node = phylo3.Node()
             node.label = i
+            node.length = 1
             nodes[i] = node
         else:
             node = nodes[i]
@@ -53,6 +55,7 @@ def build_tree_from_graph(graph):
                 if j not in nodes:
                     cnode = phylo3.Node()
                     cnode.label = j
+                    cnode.length = 1
                     node.istip = False
                     nodes[j] = cnode
                 else:
