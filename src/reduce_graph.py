@@ -65,6 +65,26 @@ def build_tree_from_graph(graph):
             node.istip = True
     return root
 
+def clean_up_tree(tree):
+    for i in tree.leaves():
+        try:
+            lab = int(i.label)
+            print "fixing internal node:",lab
+            par = i.parent
+            par.remove_child(i)
+            if len(par.children) == 1:
+                ch = par.children[0]
+                parpar = par.parent
+                parpar.remove_child(par)
+                parpar.add_child(ch)
+            while len(par.children) == 0:
+                parpar = par.parent
+                parpar.remove_child(par)
+                par = parpar
+        except:
+            continue
+    return tree
+
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print "python reduce_graph.py in.dot out.dot out.tre"
@@ -83,6 +103,8 @@ if __name__ == "__main__":
 #    plt.show()
     nx.write_dot(graph,sys.argv[2])
     tree = build_tree_from_graph(graph)
+    #cleaning up external internal nodes
+    tree = clean_up_tree(tree)
     outfile = open(sys.argv[3],"w")
     outfile.write(newick3.tostring(tree,None)+";\n")
     outfile.close()
