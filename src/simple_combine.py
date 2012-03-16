@@ -9,6 +9,9 @@ def get_leaf_names(lvs):
         ret.append(i.label)
     return ret
 
+"""
+ignoring internal labels for now
+"""
 def process_tree_to_graph(tree,startingnum):
     graph = nx.DiGraph()
     node_leaves = {}
@@ -16,6 +19,8 @@ def process_tree_to_graph(tree,startingnum):
     for i in tree.iternodes(order=0):
         nd = None
         ed = None
+        if len(i.children) > 0:
+            i.label = None
         if i.parent == None:
             i.label = str(count)
             count += 1
@@ -148,7 +153,7 @@ def combine_tree(graph,node_leaves,tree):
             parent,child = get_graph_edge(node_leaves,lvs,plvs,names_not_in_tree,new_names)
             if len(i.children) == 0:
                 child = i.label
-            print parent,child
+#            print parent,child
             #add if parent and child are disconnected (multiple nodes in between)
             #add if child isn't there
             #add if non overlapping taxa
@@ -162,9 +167,9 @@ def combine_tree(graph,node_leaves,tree):
                 i.parent.label = str(maxcount)
                 maxcount += 1
                 graph.add_node(i.parent.label)
-                print "adding node",i.parent.label
+#                print "adding node",i.parent.label
                 graph.add_edge(i.parent.label,child,weight = 1)
-                print "adding edge",i.parent.label,child
+#                print "adding edge",i.parent.label,child
                 node_leaves[i.parent.label] = get_leaf_names(i.parent.leaves())
 #                sys.exit(0)
             elif parent == None and child == None:
@@ -175,14 +180,14 @@ def combine_tree(graph,node_leaves,tree):
                     child = i.label
                     maxcount += 1
                     graph.add_node(child)
-                    print "adding node",child
+#                    print "adding node",child
                     node_leaves[child] = get_leaf_names(i.leaves())
                 i.parent.label = str(maxcount)
                 maxcount += 1
                 graph.add_node(i.parent.label)
-                print "adding node",i.parent.label
+#                print "adding node",i.parent.label
                 graph.add_edge(i.parent.label,child,weight = 1)
-                print "adding edge",i.parent.label,child
+#                print "adding edge",i.parent.label,child
                 node_leaves[i.parent.label] = get_leaf_names(i.parent.leaves())
     return graph
 

@@ -3,21 +3,18 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import simple_combine
 
+def get_tips(graph,node):
+    names = []
+    nds = nx.dfs_postorder_nodes(graph,node)
+    for i in nds: 
+        if len(graph.successors(i)) == 0:
+            names.append(i)
+    return names
+
 def get_node_leaves(graph):
     node_leaves = {}
     for i in graph.nodes():
-        if len(graph.successors(i)) == 0:
-            node_leaves[i] = [i]
-        else:
-            stack = [i]
-            node_leaves[i] = []
-            while len(stack) != 0:
-                lab = stack.pop()
-                if len(graph.successors(lab)) == 0:
-                    node_leaves[i].append(lab)
-                else:
-                    for j in graph.successors(lab):
-                        stack.append(j)
+        node_leaves[i] = get_tips(graph,i)
     return node_leaves
 
 if __name__ == "__main__":
@@ -28,7 +25,8 @@ if __name__ == "__main__":
     intree1 = newick3.parse(infile.readline())
     infile.close()
     ingraph,node_leaves_in = simple_combine.process_tree_to_graph(intree1,1000)
-
+    print "finished reading tree"
+    
     graph = nx.read_dot(sys.argv[2])
     for i in graph.edges():
         try:
@@ -36,10 +34,13 @@ if __name__ == "__main__":
         except:
             continue
     node_leaves = get_node_leaves(graph)
+    print "finished processing graph"
 
+    print "combining graphs"
     graph = simple_combine.combine_tree(graph,node_leaves,intree1)
+    print "finished combining graphs"
 #    graph = simple_combine.combine_graph_with_labels(graph,node_leaves,ingraph,node_leaves_in)
     pos=nx.graphviz_layout(graph)
     nx.draw(graph,pos)
-    plt.show()
+#    plt.show()
     nx.write_dot(graph,sys.argv[3])

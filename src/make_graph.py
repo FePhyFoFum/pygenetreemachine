@@ -11,6 +11,6 @@ if __name__ == "__main__":
 
     infile = open(sys.argv[1],"r")
     intree1 = newick3.parse(infile.readline())
-    infile.close()
-    ingraph,node_leaves_in = simple_combine.process_tree_to_graph(intree1,1000)
+    ingraph,node_leaves_in = simple_combine.process_tree_to_graph(intree1,0)
     nx.write_dot(ingraph,sys.argv[2])
+    infile.close()
