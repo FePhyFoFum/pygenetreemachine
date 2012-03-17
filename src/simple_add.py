@@ -42,5 +42,5 @@ if __name__ == "__main__":
 #    graph = simple_combine.combine_graph_with_labels(graph,node_leaves,ingraph,node_leaves_in)
     pos=nx.graphviz_layout(graph)
     nx.draw(graph,pos)
-#    plt.show()
+    plt.show()
     nx.write_dot(graph,sys.argv[3])
