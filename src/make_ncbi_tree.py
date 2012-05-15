@@ -5,7 +5,7 @@ the infile has the format of the id from the sqlite
 """
 
 #need to use this database because of the ids
-database = "/home/smitty/Desktop/pln.update.db"
+database = "/home/smitty/Desktop/pln.db"
 
 plants_ncbi_id = 3193
 
