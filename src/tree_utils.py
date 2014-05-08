@@ -1,164 +1,80 @@
-import string, sys
-from shlex import shlex
-from phylo3 import Node
-import StringIO
+import node
+import sys,os
 
+"""
+this will create consensus trees, calculate bipartitions, calculate distances
 
+"""
 
+def rf_dist(tree1,tree2):
+    return 0
 
-class Tokenizer(shlex):
-    """Provides tokens for parsing Newick-format trees"""
-    def __init__(self, infile):
-        shlex.__init__(self, infile)
-        self.commenters = ''
-        self.wordchars = self.wordchars+'-.|\\/'
-        self.quotes = "'"
-
-    def parse_comment(self):
-        comment = ""
-        while 1:
-            token = self.get_token()
-	    comment += token
-            if token == '':
-                sys.stdout.write('EOF encountered mid-comment!\n')
-                break
-            elif token == ']':
-                break
-            elif token == '[':
-                self.parse_comment()
-            else:
-                pass
-        return comment[:-1] 
-
-def read_treestring(inputstr):
-    curnode = None
-    rootnode = None
-    keepgoing = True
-    start = True
-    curcharint = 0
-    nextchar = inputstr[curcharint]
-    while keepgoing:
-        if nextchar == '(':
-            if start == True:
-                start = False
-                root = Node()
-                root.istip = False
-                root.isroot = True
-                curnode = root
-                rootnode = root
-            else:
-                newnode = Node()
-                newnode.istip = False
-                curnode.add_child(newnode)
-                curnode = newnode
-        elif nextchar == ')':
-            curnode = curnode.parent
-            curcharint += 1
-            nextchar = inputstr[curcharint]
-            name = ""
-            goingName = True
-            if nextchar in [",",")",":",";","["]:
-                goingName = False
-            while goingName == True:
-                name = name + nextchar
-                curcharint += 1
-                nextchar = inputstr[curcharint]
-                if nextchar in [",",")",":",";","["]:
-                    goingName = False
-                    break
-            curnode.label = name
-            curcharint -= 1
-        elif nextchar == ',':
-            curnode = curnode.parent
-        # branch length
-        elif nextchar == ':':
-            curcharint += 1
-            nextchar = inputstr[curcharint]
-            brlen = ""
-            goingbrln = True
-            while goingbrln:
-                brlen = brlen + nextchar
-                curcharint += 1
-                nextchar = inputstr[curcharint]
-                if nextchar in [",",")",":",";","["]:
-                    goingbrln = False
-                    break
-            try:
-                curnode.length = float(brlen)
-            except:
-                print "error with branch length:",brlen
-            curcharint -= 1
-        # comment
-        elif nextchar == '[':
-            curcharint += 1
-            nextchar = inputstr[curcharint]
-            comment = ""
-            goingnote = True
-            while goingnote:
-                comment = comment+nextchar
-                curcharint += 1
-                nextchar = inputstr[curcharint]
-                if nextchar == ']':
-                    goingnote = False
-                    break
-            curnode.comment = comment
-            curcharint -= 1
-        elif nextchar == ';':
-            keepgoing = False
-        elif nextchar == ' ':
+#using rooted trees for unrooted means ignoring anything with one
+def calc_biparts(tree1):
+    allbiparts1 = []
+    allbiparts2 = []
+    for i in tree1.iternodes():
+        bp1,bp2 = get_bipart(i,tree1)
+        if len(bp1) < 2 or len(bp2) < 2:
             continue
-        # leaf node
-        else:
-            newnode = Node()
-            curnode.add_child(newnode)
-            newnode.istip = True
-            nodename = ""
-            goingname = True
-            while goingname == True:
-                nodename = nodename + nextchar
-                curcharint += 1
-                nextchar = inputstr[curcharint]
-                if nextchar in [",",")",":","["]:
-                    goingname = False
-                    break
-            newnode.label = nodename
-            curnode = newnode
-            curcharint -= 1
-        if curcharint < len(inputstr)-1:
-            curcharint += 1
-        nextchar = inputstr[curcharint]
-    return rootnode
+        if bp1 in allbiparts1 or bp1 in allbiparts2:
+            continue
+        allbiparts1.append(bp1)
+        allbiparts2.append(bp2)
+    return allbiparts1,allbiparts2
 
-        
-def to_string(node, length_fmt=":%s"):
-    if not node.istip:
-        node_str = "(%s)%s" % \
-                   (",".join([ to_string(child, length_fmt) \
-                               for child in node.children ]),
-                    node.label or ""
-                    )
-    else:
-        node_str = "%s" % node.label
+def get_bipart(node,root):
+    rtlvs = []
+    for i in root.leaves_fancy():
+        rtlvs.append(i.label)
+    ndlvs = []
+    for i in node.leaves_fancy():
+        ndlvs.append(i.label)
+    bp1 = set(rtlvs) - set(ndlvs)
+    bp2 = set(ndlvs)
+    return bp1,bp2
 
-    if node.length is not None:
-        length_str = length_fmt % node.length
-        #length_str = ':%f' % node.length
-        #length_str = str(length_str)
-    else:
-        length_str = ""
+def calc_biparts_support(trees):
+    bipartscount = []
+    allbiparts1 = []
+    allbiparts2 = []
+    for i in range(len(trees)):
+        tree = trees[i]
+        abp1,abp2 = calc_biparts(tree)
+        for tabp1,tabp2 in zip(abp1,abp2):
+            if tabp1 in allbiparts1:
+                bipartscount[allbiparts1.index(tabp1)] += 1
+            elif tabp1 in allbiparts2:
+                bipartscount[allbiparts2.index(tabp1)] += 1
+            else:
+                allbiparts1.append(tabp1)
+                allbiparts2.append(tabp2)
+                bipartscount.append(1)
+    for i in range(len(bipartscount)):
+        print allbiparts1[i],allbiparts2[i],bipartscount[i]/float(len(trees))
 
-    s = "%s%s" % (node_str, length_str)
-    return s
+def get_mrca(nodes,tree):
+    traceback = []
+    first = nodes[0]
+    while first != tree:
+        first = first.parent
+        traceback.append(first)
+        if first.parent == None:
+            break
+    curmrca = first
+    for i in nodes:
+        if i == nodes[0]:
+            continue
+        curmrca = mrca_recurs(curmrca,traceback,i)
+    return curmrca
 
-tostring = to_string
+def mrca_recurs(node1,path1,node2):
+    path = path1[path1.index(node1):]
+    parent = node2
+    mrca = None
+    while parent != None:
+        if parent in path:
+            mrca = parent
+        parent = parent.parent
+    return mrca
 
-if __name__ == "__main__":
-    #import ascii
-    s = "(a:3,(b:1e-05,c:1.3)int_|_and_33.5:5)root;"
-    #s = "(a,b,c,d,e,f,g);"
-    n = read_treestring(s)
-    print
-    #print ascii.render(n)
-    print(s)
-    print(to_string(n))
-    #print n.next.back.label
