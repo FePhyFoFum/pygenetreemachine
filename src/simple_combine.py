@@ -1,4 +1,4 @@
-import newick3,phylo3,sys
+import tree_utils,phylo3,sys
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
@@ -196,11 +196,11 @@ if __name__ == "__main__":
         print "python simple_combine.py tree1 tree2 out.dot"
         sys.exit(0)
     infile = open(sys.argv[1],"r")
-    intree1 = newick3.parse(infile.readline())
+    intree1 = tree_utils.read_treestring(infile.readline())
     infile.close()
     graph1,node_leaves1 = process_tree_to_graph(intree1,0)
     infile = open(sys.argv[2],"r")
-    intree2 = newick3.parse(infile.readline())
+    intree2 = tree_utils.read_treestring(infile.readline())
     infile.close()
     graph2,node_leaves2 = process_tree_to_graph(intree2,5000)
 

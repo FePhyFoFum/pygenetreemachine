@@ -1,4 +1,4 @@
-import newick3,phylo3,sys
+import tree_utils,phylo3,sys
 import networkx as nx
 import matplotlib.pyplot as plt
 import simple_combine
@@ -106,5 +106,5 @@ if __name__ == "__main__":
     #cleaning up external internal nodes
     tree = clean_up_tree(tree)
     outfile = open(sys.argv[3],"w")
-    outfile.write(newick3.tostring(tree,None)+";\n")
+    outfile.write(tree_utils.tostring(tree,None)+";\n")
     outfile.close()

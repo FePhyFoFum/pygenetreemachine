@@ -1,4 +1,4 @@
-import sys,os,sqlite3,phylo3,newick3
+import sys,os,sqlite3,phylo3,tree_utils
 
 """
 the infile has the format of the id from the sqlite
@@ -85,5 +85,5 @@ if __name__ == "__main__":
 		i.length = 1.0
 
 	outfile = open(sys.argv[3],"w")
-	outfile.write(newick3.tostring(root_node,None)+";")
+	outfile.write(tree_utils.tostring(root_node,None)+";")
 	outfile.close()

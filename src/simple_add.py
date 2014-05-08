@@ -1,4 +1,4 @@
-import newick3,phylo3,sys
+import tree_utils,phylo3,sys
 import networkx as nx
 import matplotlib.pyplot as plt
 import simple_combine
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         print "python simple_add.py tree1 in.dot out.dot"
         sys.exit(0)
     infile = open(sys.argv[1],"r")
-    intree1 = newick3.parse(infile.readline())
+    intree1 = tree_utils.read_treestring(infile.readline())
     infile.close()
     ingraph,node_leaves_in = simple_combine.process_tree_to_graph(intree1,1000)
     print "finished reading tree"
