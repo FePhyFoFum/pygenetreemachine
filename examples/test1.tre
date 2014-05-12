@@ -1,1 +1,3 @@
-((((Aster_alpinus,Aster_hayatae),Aster_indicus),(Aster_amellus,Brachyscome_aculeata)),(((Anthemis_aaronsohnii,Anthemis_abylaea),(Anthemis_alpestris,Anthemis_arvensis)),Centipeda_minima));
+((a@1,b@1)50,(c@1,d@1)50);
+((a@1,b@1)50,(c@1,d@1)100);
+(((a@1,b@1),(a@2,b@2))100,(c@1,d@1));
